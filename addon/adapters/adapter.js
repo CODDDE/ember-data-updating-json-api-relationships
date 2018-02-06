@@ -9,7 +9,7 @@ export default DS.JSONAPIAdapter.extend({
     }
 
     let originalUpdateURL = this._super(...arguments);
-    if (adapterOptions && (adapterOptions.relationshipToUpdate)) {
+    if (adapterOptions && adapterOptions.relationshipToUpdate) {
       let { relationshipToUpdate } = adapterOptions;
       let relationship = this._getRelationship(relationshipToUpdate, snapshot);
       let path = this._normalizeRelationshipPath(relationship.type, relationship.kind);
