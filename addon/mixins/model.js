@@ -5,5 +5,25 @@ export default Ember.Mixin.create({
     return this.save({
       adapterOptions: { relationshipToUpdate: relationship }
     });
-  }
+  },
+
+  addRelationship(relationship, data) {
+    return this.save({
+      adapterOptions: {
+        relationshipToUpdate: relationship,
+        data,
+        requestType: 'createRelationship'
+      }
+    })
+  },
+
+  removeRelationship(relationship, data) {
+    return this.save({
+      adapterOptions: {
+        relationshipToUpdate: relationship,
+        data,
+        requestType: 'deleteRelationship'
+      }
+    })
+  },
 });
