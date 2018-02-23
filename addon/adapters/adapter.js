@@ -1,5 +1,6 @@
 import DS from 'ember-data';
 import { pluralize } from 'ember-inflector';
+import { dasherize } from '@ember/string';
 
 export default DS.JSONAPIAdapter.extend({
   urlForUpdateRecord(id, modelName, snapshot) {
@@ -11,8 +12,9 @@ export default DS.JSONAPIAdapter.extend({
     let originalUpdateURL = this._super(...arguments);
     if (adapterOptions && adapterOptions.relationshipToUpdate) {
       let { relationshipToUpdate } = adapterOptions;
-      let relationship = this._getRelationship(relationshipToUpdate, snapshot);
-      let path = this._normalizeRelationshipPath(relationship.type, relationship.kind);
+      // let relationship = this._getRelationship(relationshipToUpdate, snapshot);
+      // let path = this._normalizeRelationshipPath(relationship.type, relationship.kind);
+      const path = dasherize(relationshipToUpdate);
       return `${originalUpdateURL}/relationships/${path}`;
     }
 
@@ -42,7 +44,7 @@ export default DS.JSONAPIAdapter.extend({
     if(relationship.kind === 'hasMany') {
       payload = [];
 
-      if(data.length) {
+      if(data && data.length) {
         data.forEach((objectModel) => {
           payload.pushObject(this.serializeIdType(objectModel));
         });
@@ -55,7 +57,7 @@ export default DS.JSONAPIAdapter.extend({
       };
     }
     else if(relationship.kind === 'belongsTo' && data.length){
-      throw new Error('Invalid received data: Array Object is not allowed to add in a belongsTo relationship');
+      throw new Error('Invalid received data: Data is not allowed to add in a belongsTo relationship');
     }
     payload = this.serializeIdType(adapterOptions.data);
     return payload;
@@ -64,8 +66,7 @@ export default DS.JSONAPIAdapter.extend({
   updateRecord(store, type, snapshot) {
     let { adapterOptions } = snapshot;
 
-    if (adapterOptions && adapterOptions.relationshipToUpdate) {
-
+    if(adapterOptions && adapterOptions.requestType) {
       const data = this.createPayload(snapshot);
       let url = this.buildURL(type.modelName, snapshot.id, snapshot, 'updateRecord');
       if(adapterOptions.requestType === 'createRelationship') {
@@ -77,15 +78,14 @@ export default DS.JSONAPIAdapter.extend({
           .then(() => null );
       }
     }
-    else {
-      let promise = this._super(...arguments);
-      if (adapterOptions && adapterOptions.relationshipToUpdate) {
-        return promise.then(() => {
-          return null;
-        });
-      }
-      return promise;
+
+    let promise = this._super(...arguments);
+    if (adapterOptions && adapterOptions.relationshipToUpdate) {
+      return promise.then(() => {
+        return null;
+      });
     }
+    return promise;
   },
 
   _getRelationship(relationshipToUpdate, snapshot) {
