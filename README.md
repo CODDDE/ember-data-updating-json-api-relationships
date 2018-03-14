@@ -65,6 +65,26 @@ article.set('author', author);
 article.updateRelationship('author');
 ```
 
+If you want to add or remove one o more specific objects to your relationships,
+you can use `addToRelationship(relationship, data)` or `removeFromRelationship(relationship, data)`
+where `data` can be an object model or object model array:
+
+**NOTE:** This methods `addToRelationship() and removeFromRelationship()` only are available for `hasMany` relationships according to JSON API specification.
+
+```js
+article.addToRelationship('tags', tag3);
+// or
+const tags = [ tag3, tag4 ];
+article.addToRelationship('tags', tags);
+
+
+article.removeFromRelationship('tags', tag1);
+// or
+const tags = [ tag1, tag2 ];
+article.removeFromRelationship('tags', tags);
+```
+
+
 ## Customizations
 
 ### Customizing Relationship URLs
